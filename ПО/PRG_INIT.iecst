@@ -1,7 +1,7 @@
 (* Init PID *) (* Настройка параметров ПИД регулирования *)
 R500 := 1000; (* Time 1c *)
 R501 := 2#0000_0000_0000_0001; (* Heating mode *)
-R522 := 4000; (* Output max 100% *)
+R522 := 4090; (* Output max 100% *)
 R523 := 0; (* Output min *)
 R525 := 10; (* Delta for Autotune 1.0 C *)
 R526 := R522; (* Autotune output upper value *)
