@@ -1,7 +1,7 @@
 fbAmBlock(iProcessNum := 0, iSeverity := 0);
 MOV(fbAmBlock.Q AND iStep > 2, 40, iStep);
 
-fbTPVentDelay(IN := MEF(DO_VFDHum), PT := MIN_TO_TIME(griMinVentDelay));
+fbTPVentDelay(IN := MEF(DO_VFDHum), PT := F_MIN_TO_TIME(griMinVentDelay));
 xPIDTEnable := iStep = 20 OR iStep = 30 AND (giPID_T_PV < (giPID_T_SV + griTLimit));
 xPIDHEnable := iStep = 20 OR iStep = 30 AND NOT fbTPVentDelay.Q AND (giPID_H_PV > (giPID_H_SV - griHLimit));
 PID(xPIDTEnable, giPID_T_SV, giPID_T_PV, R500, giPID_T_MV);
@@ -88,10 +88,10 @@ CASE iStep OF
 	20: (* Raise *)
 		INCP(M8014, giCS_RaiseETime);
 
-		giPID_T_SV := SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_T, grSteps[giCS_Num].iHoldTempr);
-		giPID_H_SV := SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_H, grSteps[giCS_Num].iHoldHumid);
+		giPID_T_SV := F_SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_T, grSteps[giCS_Num].iHoldTempr);
+		giPID_H_SV := F_SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_H, grSteps[giCS_Num].iHoldHumid);
 
-		giRaiseET := WORK_LEFT(grSteps[giCS_Num].iRiseTime, giCS_RaiseETime);
+		giRaiseET := F_WORK_LEFT(grSteps[giCS_Num].iRiseTime, giCS_RaiseETime);
 		MOV(giCS_RaiseETime >= grSteps[giCS_Num].iRiseTime, 30, iStep);
 		MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[giCS_Num].iState);
 
@@ -102,7 +102,7 @@ CASE iStep OF
 		giPID_T_SV := grSteps[giCS_Num].iHoldTempr;
 		giPID_H_SV := grSteps[giCS_Num].iHoldHumid;
 
-		giHoldET := WORK_LEFT(grSteps[giCS_Num].iHoldTime, giCS_HoldETime);
+		giHoldET := F_WORK_LEFT(grSteps[giCS_Num].iHoldTime, giCS_HoldETime);
 		MOV(giCS_HoldETime >= grSteps[giCS_Num].iHoldTime, 10, iStep);
 		MOV(iStep = 10, c_STATE_DONE, garstStepHelper[giCS_Num].iState);
 		MOV(iStep = 10, grSteps[giCS_Num].iHoldTempr, giStart_T);
