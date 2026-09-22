@@ -45,7 +45,7 @@ fbAmSet(iNum:=12,xState:=DI_VFDAlarm13);
 fbAmSet(iNum:=13,xState:=DI_VFDAlarm14);
 fbAmSet(iNum:=14,xState:=DI_VFDAlarmHumid);
 
-BMOV(TRUE, D3280, 8, K4M2000);
+fbAMPack(DNUM := 2000, PD := c_AM_PACK_M);
 
 AO_VFD1 := SCALE(giCSVFDSpeed,0,100,0,32000);
 DO_VFD1 := gxVFD1 AND NOT DI_VFDAlarm1 AND (AO_VFD1 > 0);
