@@ -16,8 +16,8 @@ AI_PVTHumid := F_SCALE(R23709, 0, 32000, 50, 950);
 AI_PVTTempr := F_SCALE(R23710, 0, 32000, -400, 800);
 AI_AirFlow := F_SCALE(R23711, 0, 32000, 0, 1000);
 
-AI_Valve1Position := F_SCALE(D8032, 0, 4050, 0, 100);
-AI_Valve2Position := F_SCALE(D8033, 0, 4050, 0, 100);
+AI_Valve1Position := F_SCALE(D8032, 0, 4090, 0, 100);
+AI_Valve2Position := F_SCALE(D8033, 0, 4090, 0, 100);
 
 fT1 := F_FLT10(AI_Temp1);	
 fT2 := F_FLT10(AI_Temp2);	
@@ -38,6 +38,9 @@ fFlow := F_FLT10(AI_AirFlow);
 giPID_H_PV := AI_PVTHumid;
 AO_Valve1 := giPID_T_MV;
 AO_Valve2 := giPID_T_MV;
+(* Отображение состояния и положения клапанов (задвижек) на HMI *)
+gxValve1Work := AO_Valve1 > 0;
+gxValve2Work := AO_Valve2 > 0;
 
 
 fbAmSet(iNum := 0, xState := DI_VFDAlarm1);
@@ -69,6 +72,9 @@ fbAmSet(iNum := 23, xState := D8033 = 32760); (* Положение задвиж
 
 fbAmReset(IN := gxAlarmReset, AutoReset := 60);
 fbAMPack(DNUM := 3000, PD := c_AM_PACK_M);
+
+(* Наличие любой аварии (любой процесс/важность) — для HMI *)
+fbAmHas(iProcessNum := 0, iSeverity := 0, Q := gxHasAlarm);
 
 DO_VFDReset := gxAlarmReset 
 	AND (
@@ -136,6 +142,13 @@ AO_VFDVent := giPID_H_MV;
 (* Если нужно ограничивать, и есть значение приводим его к минимальному. *)
 LIMITATION_E(griMinVentSpeed > 0 AND giPID_H_MV > 0, F_SCALE(griMinVentSpeed, 0, 100, 0, 32000), giPID_H_MV, 32000, AO_VFDVent);
 DO_VFDHum := NOT DI_VFDAlarmHumid AND AO_VFDVent > 0;
+
+
+giCS_NumDisplay := SEL(gxProgress, 0, giCS_Num + 1);
+
+(* Остаток времени текущего этапа в минутах (для HMI) *)
+giRaiseMinLeft := LIMITATION(0, giCSRaiseTime - giCS_RaiseETime, giCSRaiseTime);
+giHoldMinLeft := LIMITATION(0, giCSHoldTime - giCS_HoldETime, giCSHoldTime);
 
 (* Состояния ПЧ: 0-не активирован, 1-не работает, 2-работает, 3-ошибка *)
 

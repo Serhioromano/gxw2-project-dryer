@@ -9,6 +9,14 @@ MOV(NOT gxStart AND (iStep = 20 OR iStep = 30), 40, iStep);
 (* Кнопка СБРОС нажата — полный сброс программы (шаг 0), далее Init -> Reset -> Idle *)
 MOV(MEP(gxReset), 0, iStep);
 
+(* Кнопка «Следующий этап»: завершить текущий этап и перейти к следующему *)
+IF MEP(gxNextStep) AND (iStep = 20 OR iStep = 30) THEN
+	garstStepHelper[giCS_Num].iState := c_STATE_DONE;
+	giStart_T := grSteps[giCS_Num].iHoldTempr;
+	giStart_H := grSteps[giCS_Num].iHoldHumid;
+	iStep := 10;
+END_IF;
+
 fbTPVentDelay(IN := MEF(DO_VFDHum), PT := F_MIN_TO_TIME(griMinVentDelay));
 xPIDTEnable := (iStep = 20 OR iStep = 30) AND (giPID_T_PV < (giPID_T_SV + griTLimit));
 xPIDHEnable := (iStep = 20 OR iStep = 30) AND NOT fbTPVentDelay.Q AND (giPID_H_PV > (giPID_H_SV - griHLimit));
