@@ -14,7 +14,7 @@ AI_TempProd3 := R23706;
 AI_Pressure := F_SCALE(R23708, 0, 32000, 0, -1000);
 AI_PVTHumid := F_SCALE(R23709, 0, 32000, 50, 950);
 AI_PVTTempr := F_SCALE(R23710, 0, 32000, -400, 800);
-AI_AirFlow := F_SCALE(R23711, 0, 32000, 0, 100);
+AI_AirFlow := F_SCALE(R23711, 0, 32000, 0, 1000);
 
 AI_Valve1Position := F_SCALE(D8032, 0, 4050, 0, 100);
 AI_Valve2Position := F_SCALE(D8033, 0, 4050, 0, 100);
