@@ -11,6 +11,7 @@ MOV(NOT xPIDHEnable, 0, giPID_H_MV);
 
 CASE iStep OF
 	0: (* Init *)
+		gxStart := FALSE;
 		iStep := 1;
 
 	1: (* Reset *)
