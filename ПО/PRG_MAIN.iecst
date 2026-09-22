@@ -2,8 +2,8 @@ fbAmBlock(iProcessNum := 0, iSeverity := 0);
 MOV(fbAmBlock.Q AND iStep > 2, 40, iStep);
 
 fbTPVentDelay(IN := MEF(DO_VFDHum), PT := F_MIN_TO_TIME(griMinVentDelay));
-xPIDTEnable := iStep = 20 OR iStep = 30 AND (giPID_T_PV < (giPID_T_SV + griTLimit));
-xPIDHEnable := iStep = 20 OR iStep = 30 AND NOT fbTPVentDelay.Q AND (giPID_H_PV > (giPID_H_SV - griHLimit));
+xPIDTEnable := (iStep = 20 OR iStep = 30) AND (giPID_T_PV < (giPID_T_SV + griTLimit));
+xPIDHEnable := (iStep = 20 OR iStep = 30) AND NOT fbTPVentDelay.Q AND (giPID_H_PV > (giPID_H_SV - griHLimit));
 PID(xPIDTEnable, giPID_T_SV, giPID_T_PV, R500, giPID_T_MV);
 PID(xPIDHEnable, giPID_H_SV, giPID_H_PV, R600, giPID_H_MV);
 MOV(NOT xPIDTEnable, 0, giPID_T_MV);
@@ -16,6 +16,14 @@ CASE iStep OF
 	1: (* Reset *)
 		giStart_T := 0;
 		giStart_H := 0;
+		giCS_Num := 0;
+		giCS_RaiseETime := 0;
+		giCS_HoldETime := 0;
+		giCSVFDSpeed := 0;
+		giCSTemp_SV := 0;
+		giCSHum_SV := 0;
+		giCSRaiseTime := 0;
+		giCSHoldTime := 0;
 		gxDone := FALSE;
 		gxProgress := FALSE;
 		FOR iCount := 0 TO 4 DO
@@ -63,16 +71,16 @@ CASE iStep OF
 
 				IF iStep > 10 THEN
 					giCS_Num := iCount;
-					MOV(iStep = 20, c_STATE_RAISE, garstStepHelper[iCount].iState);
-					MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[iCount].iState);
-					MOV(giStart_T = 0, giPID_T_PV, giStart_T);
-					MOV(giStart_H = 0, giPID_H_PV, giStart_H);
-					(* Сбрасываем счечтики только если мы начинаем шаг заново.
-					Если мы в него возвращаемся нжно сохранить счет. *)
+					(* Сбрасываем счётчики только если начинаем шаг заново.
+					Если возвращаемся в шаг (после паузы/перезагрузки) — сохраняем счёт. *)
 					IF garstStepHelper[iCount].iState = c_STATE_IDLE THEN
 						giCS_RaiseETime := 0;
 						giCS_HoldETime := 0;
 					END_IF;
+					MOV(iStep = 20, c_STATE_RAISE, garstStepHelper[iCount].iState);
+					MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[iCount].iState);
+					MOV(giStart_T = 0, giPID_T_PV, giStart_T);
+					MOV(giStart_H = 0, giPID_H_PV, giStart_H);
 					giCSRaiseTime := grSteps[iCount].iRiseTime;
 					giCSHoldTime := grSteps[iCount].iHoldTime;
 					giCSTemp_SV := grSteps[iCount].iHoldTempr;
@@ -91,7 +99,7 @@ CASE iStep OF
 		giPID_T_SV := F_SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_T, grSteps[giCS_Num].iHoldTempr);
 		giPID_H_SV := F_SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_H, grSteps[giCS_Num].iHoldHumid);
 
-		giRaiseET := F_WORK_LEFT(grSteps[giCS_Num].iRiseTime, giCS_RaiseETime);
+		giRaiseET := F_WORK_LEFT(giCS_RaiseETime, grSteps[giCS_Num].iRiseTime);
 		MOV(giCS_RaiseETime >= grSteps[giCS_Num].iRiseTime, 30, iStep);
 		MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[giCS_Num].iState);
 
@@ -102,7 +110,7 @@ CASE iStep OF
 		giPID_T_SV := grSteps[giCS_Num].iHoldTempr;
 		giPID_H_SV := grSteps[giCS_Num].iHoldHumid;
 
-		giHoldET := F_WORK_LEFT(grSteps[giCS_Num].iHoldTime, giCS_HoldETime);
+		giHoldET := F_WORK_LEFT(giCS_HoldETime, grSteps[giCS_Num].iHoldTime);
 		MOV(giCS_HoldETime >= grSteps[giCS_Num].iHoldTime, 10, iStep);
 		MOV(iStep = 10, c_STATE_DONE, garstStepHelper[giCS_Num].iState);
 		MOV(iStep = 10, grSteps[giCS_Num].iHoldTempr, giStart_T);
