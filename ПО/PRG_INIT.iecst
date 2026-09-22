@@ -1,0 +1,40 @@
+AM_D_START := 3000;
+
+(* Init PID *) (* Настройка параметров ПИД регулирования *)
+R500 := 1000; (* Time 1c *)
+R501 := 2#0000_0000_0000_0001; (* Heating mode *)
+R522 := 4000; (* Output max 100% *)
+R523 := 0; (* Output min *)
+R525 := 10; (* Delta for Autotune 1.0 C *)
+R526 := R522; (* Autotune output upper value *)
+R527 := 0; (* Autotune output lower value *)
+
+(* Init PIDHum *) (* Настройка параметров ПИД регулирования *)
+R600 := 1000; (* Time 1c *)
+R601 := 2#0000_0000_0000_0000; (* Cooling mode *)
+R622 := 32000; (* Output max 100% *)
+R623 := 0; (* Output min *)
+R625 := 10; (* Delta for Autotune 1.0 C *)
+R626 := R622; (* Autotune output upper value *)
+R627 := 0; (* Autotune output lower value *)
+
+
+
+fbAmInit.iProcess  := 0;
+fbAmInit.iSeverity := 0;
+
+fbAmInit(iNum:=0,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=1,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=2,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=3,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=4,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=5,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=6,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=7,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=8,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=9,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=10,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=11,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=12,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=13,xLatch:=0,xBuzzer:=0,xLock:=0);
+fbAmInit(iNum:=14,xLatch:=0,xBuzzer:=0,xLock:=0);

@@ -1,0 +1,117 @@
+fbAmBlock(iProcessNum:=0,iSeverity:=0);
+MOV(fbAmBlock.Q AND iStep > 2, 40, iStep);
+
+xPIDTEnable := iStep = 20 OR iStep = 30 AND (giPID_T_PV < (giPID_T_SV + griTLimit));
+xPIDHEnable := iStep = 20 OR iStep = 30  AND NOT fbTPVentDelay.Q AND (giPID_H_PV > (giPID_H_SV - griHLimit));
+fbTPVentDelay(IN := MEF(DO_VFDHum), PT:= MIN_TO_TIME(griMinVentDelay));
+PID(xPIDTEnable, giPID_T_SV, giPID_T_PV, R500, giPID_T_MV);
+PID(xPIDHEnable, giPID_H_SV, giPID_H_PV, R600, giPID_H_MV);
+MOV(NOT xPIDTEnable, 0, giPID_T_MV);
+MOV(NOT xPIDHEnable, 0, giPID_H_MV);
+
+CASE iStep OF
+	0: (* Init *)
+		iStep := 1;
+
+	1: (* Reset *)
+		giStart_T := 0;
+		giStart_H := 0;
+		gxDone := FALSE;
+		gxProgress := FALSE;
+		FOR iCount := 0 TO 4 DO
+			garstStepHelper[iCount].iState := c_STATE_IDLE;
+		END_FOR;
+		iStep := 2;
+
+	2: (* Idle *)
+		IF gxStart AND NOT fbAmBlock.Q THEN
+			iLastStep := 4;
+			FOR iCount := 0 TO 4 DO
+				IF grSteps[4 - iCount].iEnable = 1 THEN
+					iLastStep := 4 - iCount;
+					EXIT;
+				END_IF;
+			END_FOR;
+			IF gxPIDANTemp THEN
+	            R501 := 2#0000_0000_0011_0001; (* Autotune Step Response *)
+	            IF NOT gxPIDANModeTemp THEN
+	                R501 := 2#0000_0000_0111_0001; (* Autotune limit cycle *)
+	            END_IF;
+	            gxPIDANTemp := FALSE;
+	        END_IF;
+	        IF gxPIDANHum THEN
+	            R601 := 2#0000_0000_0011_0000; (* Autotune Step Response *)
+	            IF NOT gxPIDANModeHum THEN
+	                R601 := 2#0000_0000_0111_0000; (* Autotune limit cycle *)
+	            END_IF;
+	            gxPIDANHum := FALSE;
+	        END_IF;
+			iStep := 10;
+			gxProgress := TRUE;
+		END_IF;
+		
+	10: (* Step select *)
+	
+		FOR iCount := 0 TO 4 DO
+			IF grSteps[iCount].iEnable = 1 AND garstStepHelper[iCount].iState < c_STATE_DONE THEN
+				
+				(* по умолчанию на подъем начала этапа или востановление подъема, 
+				но если мы вернулись например после перезагрузки на этап удержания на удержание. *)
+				iStep := 20;
+				MOV(garstStepHelper[iCount].iState = c_STATE_HOLD, 30, iStep);
+				
+				IF iStep > 10 THEN
+					giCS_Num := iCount;			
+					MOV(iStep = 20, c_STATE_RAISE, garstStepHelper[iCount].iState);
+					MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[iCount].iState);
+					MOV(giStart_T = 0, giPID_T_PV, giStart_T);
+					MOV(giStart_H = 0, giPID_H_PV, giStart_H);
+					(* Сбрасываем счечтики только если мы начинаем шаг заново. 
+					Если мы в него возвращаемся нжно сохранить счет. *)
+					IF garstStepHelper[iCount].iState = c_STATE_IDLE THEN
+						giCS_RaiseETime := 0;
+						giCS_HoldETime := 0;
+					END_IF;
+					giCSRaiseTime := grSteps[iCount].iRiseTime;
+					giCSHoldTime := grSteps[iCount].iHoldTime;
+					giCSTemp_SV := grSteps[iCount].iHoldTempr;
+					giCSHum_SV := grSteps[iCount].iHoldHumid;
+					giCSVFDSpeed := grSteps[iCount].iVFDSpeed;
+					EXIT;
+				END_IF;
+			END_IF;
+		END_FOR;
+		MOV(iStep = 10, 50, iStep);
+		
+	
+	20: (* Raise *)
+		INCP(M8014, giCS_RaiseETime);
+
+		giPID_T_SV := SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_T, grSteps[giCS_Num].iHoldTempr);
+		giPID_H_SV := SCALE(giCS_RaiseETime, 0, grSteps[giCS_Num].iRiseTime, giStart_H, grSteps[giCS_Num].iHoldHumid);
+
+		giRaiseET := WORK_LEFT(grSteps[giCS_Num].iRiseTime, giCS_RaiseETime);
+		MOV(giCS_RaiseETime >= grSteps[giCS_Num].iRiseTime, 30, iStep);
+		MOV(iStep = 30, c_STATE_HOLD, garstStepHelper[giCS_Num].iState);
+		
+	
+	30: (* Hold *)
+		INCP(M8014, giCS_HoldETime);
+		
+		giPID_T_SV := grSteps[giCS_Num].iHoldTempr;
+		giPID_H_SV := grSteps[giCS_Num].iHoldHumid;
+		
+		giHoldET := WORK_LEFT(grSteps[giCS_Num].iHoldTime, giCS_HoldETime);
+		MOV(giCS_HoldETime >= grSteps[giCS_Num].iHoldTime, 10, iStep);
+		MOV(iStep = 10, c_STATE_DONE, garstStepHelper[giCS_Num].iState);
+		MOV(iStep = 10, grSteps[giCS_Num].iHoldTempr, giStart_T);
+		MOV(iStep = 10, grSteps[giCS_Num].iHoldHumid, giStart_H);
+
+	40: (* Pause *)
+		MOV(NOT fbAmBlock.Q, 10, iStep);
+
+	50: (* Finish *)
+		gxDone := TRUE;
+		MOV(NOT gxStart, 1, iStep);
+	
+END_CASE;

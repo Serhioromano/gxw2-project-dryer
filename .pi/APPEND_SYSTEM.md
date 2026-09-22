@@ -1,0 +1,3 @@
+- Never commit changes I'll do that manualy after review
+- For code or label writing use `gxw2-st` skill
+- After each code change update README.md

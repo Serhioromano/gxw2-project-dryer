@@ -1,0 +1,96 @@
+CASE giProbeType OF
+	0: giPID_T_PV := (AI_Temp1 + AI_Temp2) / 2;
+	1: giPID_T_PV := AI_Temp1;
+	2: giPID_T_PV := AI_Temp2;
+END_CASE;
+
+AI_Temp1 := R23700;
+AI_Temp2 := R23701;
+AI_Temp3 := R23702;
+AI_Temp4 := R23703;
+AI_TempProd1 := R23704;
+AI_TempProd2 := R23705;
+AI_TempProd3 := R23706;
+AI_Pressure := SCALE(R23708, 0, 32000, 0, -1000);
+AI_PVTHumid := SCALE(R23709, 0, 32000, 0, 100);
+AI_PVTTempr := SCALE(R23710, 0, 32000, -500,1200);
+AI_AirFlow  := SCALE(R23711, 0, 32000, 0, 100);
+
+D6032 := D8032;
+D6033 := D8033;
+AI_Valve1Position := SCALE(D8032,0,4000,0,100);
+AI_Valve2Position := SCALE(D8033,0,4000,0,100);
+
+D6034 := D8052;
+D6035 := D8053;
+giPID_H_PV := AI_PVTHumid;
+AO_Valve1 := giPID_T_MV;
+AO_Valve2 := giPID_T_MV;
+
+fbAmReset(IN:= gxAlarmReset);
+
+fbAmSet(iNum:=0,xState:=DI_VFDAlarm1);
+fbAmSet(iNum:=1,xState:=DI_VFDAlarm2);
+fbAmSet(iNum:=2,xState:=DI_VFDAlarm3);
+fbAmSet(iNum:=3,xState:=DI_VFDAlarm4);
+fbAmSet(iNum:=4,xState:=DI_VFDAlarm5);
+fbAmSet(iNum:=5,xState:=DI_VFDAlarm6);
+fbAmSet(iNum:=6,xState:=DI_VFDAlarm7);
+fbAmSet(iNum:=7,xState:=DI_VFDAlarm8);
+fbAmSet(iNum:=8,xState:=DI_VFDAlarm9);
+fbAmSet(iNum:=9,xState:=DI_VFDAlarm10);
+fbAmSet(iNum:=10,xState:=DI_VFDAlarm11);
+fbAmSet(iNum:=11,xState:=DI_VFDAlarm12);
+fbAmSet(iNum:=12,xState:=DI_VFDAlarm13);
+fbAmSet(iNum:=13,xState:=DI_VFDAlarm14);
+fbAmSet(iNum:=14,xState:=DI_VFDAlarmHumid);
+
+BMOV(TRUE, D3280, 8, K4M2000);
+
+AO_VFD1 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD1 := gxVFD1 AND NOT DI_VFDAlarm1 AND (AO_VFD1 > 0);
+
+AO_VFD2 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD2 := gxVFD2 AND NOT DI_VFDAlarm2 AND (AO_VFD2 > 0);
+
+AO_VFD3 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD3 := gxVFD3 AND NOT DI_VFDAlarm3 AND (AO_VFD3 > 0);
+
+AO_VFD4 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD4 := gxVFD4 AND NOT DI_VFDAlarm4 AND (AO_VFD4 > 0);
+
+AO_VFD5 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD5 := gxVFD5 AND NOT DI_VFDAlarm5 AND (AO_VFD5 > 0);
+
+AO_VFD6 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD6 := gxVFD6 AND NOT DI_VFDAlarm6 AND (AO_VFD6 > 0);
+
+AO_VFD7 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD7 := gxVFD7 AND NOT DI_VFDAlarm7 AND (AO_VFD7 > 0);
+
+AO_VFD8 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD8 := gxVFD8 AND NOT DI_VFDAlarm8 AND (AO_VFD8 > 0);
+
+AO_VFD9 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD9 := gxVFD9 AND NOT DI_VFDAlarm9 AND (AO_VFD9 > 0);
+
+AO_VFD10 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD10 := gxVFD10 AND NOT DI_VFDAlarm10 AND (AO_VFD10 > 0);
+
+AO_VFD11 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD11 := gxVFD11 AND NOT DI_VFDAlarm11 AND (AO_VFD11 > 0);
+
+AO_VFD12 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD12 := gxVFD12 AND NOT DI_VFDAlarm12 AND (AO_VFD12 > 0);
+
+AO_VFD13 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD13 := gxVFD13 AND NOT DI_VFDAlarm13 AND (AO_VFD13 > 0);
+
+AO_VFD14 := SCALE(giCSVFDSpeed,0,100,0,32000);
+DO_VFD14 := gxVFD14 AND NOT DI_VFDAlarm14 AND (AO_VFD14 > 0);
+
+
+AO_VFDVent := giPID_H_MV;
+(* Если нужно ограничивать, и есть значение приводим его к минимальному. *)
+LIMITATION_E(griMinVentSpeed > 0 AND giPID_H_MV > 0, SCALE(griMinVentSpeed,0,100,0,32000), giPID_H_MV, 32000, AO_VFDVent);
+DO_VFDHum := NOT DI_VFDAlarmHumid AND AO_VFDVent > 0;
