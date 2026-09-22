@@ -17,18 +17,31 @@ R626 := R622; (* Autotune output upper value *)
 R627 := 0; (* Autotune output lower value *)
 
 (* Инициализация аварий AlarmManager: 15 ошибок ПЧ (iNum 0..14) *)
-fbAmInit(iNum := 0, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 1, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 2, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 3, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 4, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 5, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 6, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 7, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 8, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 9, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 10, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 11, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 12, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 13, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
-fbAmInit(iNum := 14, iSeverity := 0, iProcess := 0, iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, xBuzzer := FALSE, xLock := FALSE);
+fbAmInit(iNum := 0, iSeverity := 0, iProcess := 0, 
+    iDelay := 0, xLatch := FALSE, xAutoReset := FALSE, 
+    xBuzzer := FALSE, xLock := FALSE);
+fbAmInit(iNum := 1);
+fbAmInit(iNum := 2);
+fbAmInit(iNum := 3);
+fbAmInit(iNum := 4);
+fbAmInit(iNum := 5);
+fbAmInit(iNum := 6);
+fbAmInit(iNum := 7);
+fbAmInit(iNum := 8);
+fbAmInit(iNum := 9);
+fbAmInit(iNum := 10);
+fbAmInit(iNum := 11);
+fbAmInit(iNum := 12);
+fbAmInit(iNum := 13);
+fbAmInit(iNum := 14);
+
+(* обрывы датчиков *)
+fbAmInit(iNum := 15);
+fbAmInit(iNum := 16);
+fbAmInit(iNum := 17);
+fbAmInit(iNum := 18);
+fbAmInit(iNum := 19);
+fbAmInit(iNum := 20);
+fbAmInit(iNum := 21);
+fbAmInit(iNum := 22);
+fbAmInit(iNum := 23);
