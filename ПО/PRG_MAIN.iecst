@@ -1,5 +1,13 @@
-fbAmBlock(iProcessNum := 0, iSeverity := 0);
+﻿fbAmBlock(iProcessNum := 0, iSeverity := 0);
+
+(* Блокирующая авария — переход в паузу (шаг 40) *)
 MOV(fbAmBlock.Q AND iStep > 2, 40, iStep);
+
+(* Кнопка ПУСК отпущена во время подъёма/выдержки — переход в паузу (шаг 40) *)
+MOV(NOT gxStart AND (iStep = 20 OR iStep = 30), 40, iStep);
+
+(* Кнопка СБРОС нажата — полный сброс программы (шаг 0), далее Init -> Reset -> Idle *)
+MOV(MEP(gxReset), 0, iStep);
 
 fbTPVentDelay(IN := MEF(DO_VFDHum), PT := F_MIN_TO_TIME(griMinVentDelay));
 xPIDTEnable := (iStep = 20 OR iStep = 30) AND (giPID_T_PV < (giPID_T_SV + griTLimit));
@@ -117,11 +125,14 @@ CASE iStep OF
 		MOV(iStep = 10, grSteps[giCS_Num].iHoldTempr, giStart_T);
 		MOV(iStep = 10, grSteps[giCS_Num].iHoldHumid, giStart_H);
 
-	40: (* Pause *)
-		MOV(NOT fbAmBlock.Q, 10, iStep);
+	40: (* Пауза: выход по повторному включению ПУСК *)
+		MOV(gxStart AND NOT fbAmBlock.Q, 10, iStep);
 
 	50: (* Finish *)
 		gxDone := TRUE;
 		MOV(NOT gxStart, 1, iStep);
 
 END_CASE;
+
+(* Признак паузы для HMI: TRUE, пока автомат находится в шаге 40 *)
+gxPause := (iStep = 40);
