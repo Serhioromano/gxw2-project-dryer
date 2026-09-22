@@ -12,18 +12,33 @@ AI_TempProd1 := R23704;
 AI_TempProd2 := R23705;
 AI_TempProd3 := R23706;
 AI_Pressure := F_SCALE(R23708, 0, 32000, 0, -1000);
-AI_PVTHumid := F_SCALE(R23709, 0, 32000, 0, 100);
-AI_PVTTempr := F_SCALE(R23710, 0, 32000, -500, 1200);
+AI_PVTHumid := F_SCALE(R23709, 0, 32000, 50, 950);
+AI_PVTTempr := F_SCALE(R23710, 0, 32000, -400, 800);
 AI_AirFlow := F_SCALE(R23711, 0, 32000, 0, 100);
 
 AI_Valve1Position := F_SCALE(D8032, 0, 4050, 0, 100);
 AI_Valve2Position := F_SCALE(D8033, 0, 4050, 0, 100);
 
+fT1 := F_FLT10(AI_Temp1);	
+fT2 := F_FLT10(AI_Temp2);	
+fT3 := F_FLT10(AI_Temp3);	
+fT4 := F_FLT10(AI_Temp4);
+fTAvg := (fT1 + fT2 + fT3 + fT4) / 4.0;
+
+fP1 := F_FLT10(AI_TempProd1);	
+fP2 := F_FLT10(AI_TempProd2);	
+fP3 := F_FLT10(AI_TempProd3);	
+fpAvg := (fP1 + fP2 + fP3) / 3.0;
+
+fPress := F_FLT10(AI_Pressure);	
+fT100 := F_FLT10(AI_PVTTempr);	
+fH100 := F_FLT10(AI_PVTHumid);	
+fFlow := F_FLT10(AI_AirFlow);	
+
 giPID_H_PV := AI_PVTHumid;
 AO_Valve1 := giPID_T_MV;
 AO_Valve2 := giPID_T_MV;
 
-fbAmReset(IN := gxAlarmReset, AutoReset := 60);
 
 fbAmSet(iNum := 0, xState := DI_VFDAlarm1);
 fbAmSet(iNum := 1, xState := DI_VFDAlarm2);
@@ -52,7 +67,27 @@ fbAmSet(iNum := 21, xState := R23706 = -1900); (* Продукт 3 *)
 fbAmSet(iNum := 20, xState := D8032 = 32760); (* Положение задвижки ПАР 1 *)
 fbAmSet(iNum := 21, xState := D8033 = 32760); (* Положение задвижки ПАР 1 *)
 
+fbAmReset(IN := gxAlarmReset, AutoReset := 60);
 fbAMPack(DNUM := 3000, PD := c_AM_PACK_M);
+
+DO_VFDReset := gxAlarmReset 
+	AND (
+		DI_VFDAlarm1
+		OR DI_VFDAlarm2
+		OR DI_VFDAlarm3
+		OR DI_VFDAlarm4
+		OR DI_VFDAlarm5
+		OR DI_VFDAlarm6
+		OR DI_VFDAlarm7
+		OR DI_VFDAlarm8
+		OR DI_VFDAlarm9
+		OR DI_VFDAlarm10
+		OR DI_VFDAlarm11
+		OR DI_VFDAlarm12
+		OR DI_VFDAlarm13
+		OR DI_VFDAlarm14
+		OR DI_VFDAlarmHumid
+	);
 
 AO_VFD1 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
 DO_VFD1 := gxVFD1 AND NOT DI_VFDAlarm1 AND (AO_VFD1 > 0);
