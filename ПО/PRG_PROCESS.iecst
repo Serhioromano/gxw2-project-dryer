@@ -64,8 +64,8 @@ fbAmSet(iNum := 18, xState := R23703 = -1900); (* Воздух 4 *)
 fbAmSet(iNum := 19, xState := R23704 = -1900); (* Продукт 1 *)
 fbAmSet(iNum := 20, xState := R23705 = -1900); (* Продукт 2 *)
 fbAmSet(iNum := 21, xState := R23706 = -1900); (* Продукт 3 *)
-fbAmSet(iNum := 20, xState := D8032 = 32760); (* Положение задвижки ПАР 1 *)
-fbAmSet(iNum := 21, xState := D8033 = 32760); (* Положение задвижки ПАР 1 *)
+fbAmSet(iNum := 22, xState := D8032 = 32760); (* Положение задвижки ПАР 1 *)
+fbAmSet(iNum := 23, xState := D8033 = 32760); (* Положение задвижки ПАР 1 *)
 
 fbAmReset(IN := gxAlarmReset, AutoReset := 60);
 fbAMPack(DNUM := 3000, PD := c_AM_PACK_M);
