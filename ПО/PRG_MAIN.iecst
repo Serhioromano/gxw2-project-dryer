@@ -1,5 +1,10 @@
 ﻿fbAmBlock(iProcessNum := 0, iSeverity := 0);
 
+(* Режим работы: ручной = Idle (шаг 2); процесс — рабочие шаги *)
+gxManualMode := (iStep = 2);
+(* Вентиляторы в процессе работают только на подъёме и выдержке *)
+gxFansRun := (iStep = 20 OR iStep = 30);
+
 (* Блокирующая авария — переход в паузу (шаг 40) *)
 MOV(fbAmBlock.Q AND iStep > 2, 40, iStep);
 
@@ -41,8 +46,20 @@ CASE iStep OF
 		giCSHum_SV := 0;
 		giCSRaiseTime := 0;
 		giCSHoldTime := 0;
-		gxDone := FALSE;
-		gxProgress := FALSE;
+		gxDone := FALSE; gxProgress := FALSE;
+		gxVFD1 := FALSE; gxVFD2 := FALSE; gxVFD3 := FALSE;
+		gxVFD4 := FALSE; gxVFD5 := FALSE; gxVFD6 := FALSE;
+		gxVFD7 := FALSE; gxVFD8 := FALSE; gxVFD9 := FALSE;
+		gxVFD10 := FALSE; gxVFD11 := FALSE; gxVFD12 := FALSE;
+		gxVFD13 := FALSE; gxVFD14 := FALSE;
+		giVFD1Speed := 0; giVFD2Speed := 0;	giVFD3Speed := 0;
+		giVFD4Speed := 0; giVFD5Speed := 0;	giVFD6Speed := 0;
+		giVFD7Speed := 0; giVFD8Speed := 0;	giVFD9Speed := 0;
+		giVFD10Speed := 0; giVFD11Speed := 0; giVFD12Speed := 0;
+		giVFD13Speed := 0; giVFD14Speed := 0; 
+		giValve1Pos := 0; giValve2Pos := 0;
+		gxVFDVent := FALSE; giVFDVentSpeed := 0;
+
 		FOR iCount := 0 TO 4 DO
 			garstStepHelper[iCount].iState := c_STATE_IDLE;
 		END_FOR;
@@ -50,6 +67,19 @@ CASE iStep OF
 
 	2: (* Idle *)
 		IF gxStart AND NOT fbAmBlock.Q THEN
+			(* Сброс ручных команд и уставок при старте процесса *)
+			gxVFD1 := FALSE; gxVFD2 := FALSE; gxVFD3 := FALSE;
+			gxVFD4 := FALSE; gxVFD5 := FALSE; gxVFD6 := FALSE;
+			gxVFD7 := FALSE; gxVFD8 := FALSE; gxVFD9 := FALSE;
+			gxVFD10 := FALSE; gxVFD11 := FALSE; gxVFD12 := FALSE;
+			gxVFD13 := FALSE; gxVFD14 := FALSE;
+			giVFD1Speed := 0; giVFD2Speed := 0;	giVFD3Speed := 0;
+			giVFD4Speed := 0; giVFD5Speed := 0;	giVFD6Speed := 0;
+			giVFD7Speed := 0; giVFD8Speed := 0;	giVFD9Speed := 0;
+			giVFD10Speed := 0; giVFD11Speed := 0; giVFD12Speed := 0;
+			giVFD13Speed := 0; giVFD14Speed := 0;
+			giValve1Pos := 0; giValve2Pos := 0;
+			gxVFDVent := FALSE; giVFDVentSpeed := 0;
 			iLastStep := 4;
 			FOR iCount := 0 TO 4 DO
 				IF grSteps[4 - iCount].iEnable = 1 THEN

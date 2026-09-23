@@ -36,8 +36,17 @@ fH100 := F_FLT10(AI_PVTHumid);
 fFlow := F_FLT10(AI_AirFlow);	
 
 giPID_H_PV := AI_PVTHumid;
-AO_Valve1 := giPID_T_MV;
-AO_Valve2 := giPID_T_MV;
+
+IF gxManualMode THEN
+	(* Ручной режим: положение клапанов задаётся с панели (0-100%) *)
+	AO_Valve1 := F_SCALE(giValve1Pos, 0, 100, 0, 4090);
+	AO_Valve2 := F_SCALE(giValve2Pos, 0, 100, 0, 4090);
+ELSE
+	(* Процесс: клапаны управляются ПИД температуры *)
+	AO_Valve1 := giPID_T_MV;
+	AO_Valve2 := giPID_T_MV;
+END_IF;
+
 (* Отображение состояния и положения клапанов (задвижек) на HMI *)
 gxValve1Work := AO_Valve1 > 0;
 gxValve2Work := AO_Valve2 > 0;
@@ -95,53 +104,59 @@ DO_VFDReset := gxAlarmReset
 		OR DI_VFDAlarmHumid
 	);
 
-AO_VFD1 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD1 := gxVFD1 AND NOT DI_VFDAlarm1 AND (AO_VFD1 > 0);
+iVFDProcessSpeed := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
 
-AO_VFD2 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD2 := gxVFD2 AND NOT DI_VFDAlarm2 AND (AO_VFD2 > 0);
+AO_VFD1 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD1Speed, 0, 500, 0, 32000));
+DO_VFD1 := ((gxManualMode AND gxVFD1) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm1 AND (AO_VFD1 > 0);
 
-AO_VFD3 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD3 := gxVFD3 AND NOT DI_VFDAlarm3 AND (AO_VFD3 > 0);
+AO_VFD2 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD2Speed, 0, 500, 0, 32000));
+DO_VFD2 := ((gxManualMode AND gxVFD2) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm2 AND (AO_VFD2 > 0);
 
-AO_VFD4 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD4 := gxVFD4 AND NOT DI_VFDAlarm4 AND (AO_VFD4 > 0);
+AO_VFD3 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD3Speed, 0, 500, 0, 32000));
+DO_VFD3 := ((gxManualMode AND gxVFD3) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm3 AND (AO_VFD3 > 0);
 
-AO_VFD5 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD5 := gxVFD5 AND NOT DI_VFDAlarm5 AND (AO_VFD5 > 0);
+AO_VFD4 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD4Speed, 0, 500, 0, 32000));
+DO_VFD4 := ((gxManualMode AND gxVFD4) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm4 AND (AO_VFD4 > 0);
 
-AO_VFD6 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD6 := gxVFD6 AND NOT DI_VFDAlarm6 AND (AO_VFD6 > 0);
+AO_VFD5 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD5Speed, 0, 500, 0, 32000));
+DO_VFD5 := ((gxManualMode AND gxVFD5) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm5 AND (AO_VFD5 > 0);
 
-AO_VFD7 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD7 := gxVFD7 AND NOT DI_VFDAlarm7 AND (AO_VFD7 > 0);
+AO_VFD6 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD6Speed, 0, 500, 0, 32000));
+DO_VFD6 := ((gxManualMode AND gxVFD6) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm6 AND (AO_VFD6 > 0);
 
-AO_VFD8 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD8 := gxVFD8 AND NOT DI_VFDAlarm8 AND (AO_VFD8 > 0);
+AO_VFD7 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD7Speed, 0, 500, 0, 32000));
+DO_VFD7 := ((gxManualMode AND gxVFD7) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm7 AND (AO_VFD7 > 0);
 
-AO_VFD9 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD9 := gxVFD9 AND NOT DI_VFDAlarm9 AND (AO_VFD9 > 0);
+AO_VFD8 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD8Speed, 0, 500, 0, 32000));
+DO_VFD8 := ((gxManualMode AND gxVFD8) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm8 AND (AO_VFD8 > 0);
 
-AO_VFD10 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD10 := gxVFD10 AND NOT DI_VFDAlarm10 AND (AO_VFD10 > 0);
+AO_VFD9 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD9Speed, 0, 500, 0, 32000));
+DO_VFD9 := ((gxManualMode AND gxVFD9) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm9 AND (AO_VFD9 > 0);
 
-AO_VFD11 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD11 := gxVFD11 AND NOT DI_VFDAlarm11 AND (AO_VFD11 > 0);
+AO_VFD10 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD10Speed, 0, 500, 0, 32000));
+DO_VFD10 := ((gxManualMode AND gxVFD10) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm10 AND (AO_VFD10 > 0);
 
-AO_VFD12 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD12 := gxVFD12 AND NOT DI_VFDAlarm12 AND (AO_VFD12 > 0);
+AO_VFD11 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD11Speed, 0, 500, 0, 32000));
+DO_VFD11 := ((gxManualMode AND gxVFD11) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm11 AND (AO_VFD11 > 0);
 
-AO_VFD13 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD13 := gxVFD13 AND NOT DI_VFDAlarm13 AND (AO_VFD13 > 0);
+AO_VFD12 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD12Speed, 0, 500, 0, 32000));
+DO_VFD12 := ((gxManualMode AND gxVFD12) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm12 AND (AO_VFD12 > 0);
 
-AO_VFD14 := F_SCALE(giCSVFDSpeed, 0, 100, 0, 32000);
-DO_VFD14 := gxVFD14 AND NOT DI_VFDAlarm14 AND (AO_VFD14 > 0);
+AO_VFD13 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD13Speed, 0, 500, 0, 32000));
+DO_VFD13 := ((gxManualMode AND gxVFD13) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm13 AND (AO_VFD13 > 0);
+
+AO_VFD14 := SEL(gxManualMode, iVFDProcessSpeed, F_SCALE(giVFD14Speed, 0, 500, 0, 32000));
+DO_VFD14 := ((gxManualMode AND gxVFD14) OR (NOT gxManualMode AND gxFansRun)) AND NOT DI_VFDAlarm14 AND (AO_VFD14 > 0);
 
 
-AO_VFDVent := giPID_H_MV;
-(* Если нужно ограничивать, и есть значение приводим его к минимальному. *)
-LIMITATION_E(griMinVentSpeed > 0 AND giPID_H_MV > 0, F_SCALE(griMinVentSpeed, 0, 100, 0, 32000), giPID_H_MV, 32000, AO_VFDVent);
-DO_VFDHum := NOT DI_VFDAlarmHumid AND AO_VFDVent > 0;
+IF gxManualMode THEN
+	AO_VFDVent := F_SCALE(giVFDVentSpeed, 0, 500, 0, 32000);
+ELSE
+	AO_VFDVent := giPID_H_MV;
+	(* Если нужно ограничивать, и есть значение приводим его к минимальному. *)
+	LIMITATION_E(griMinVentSpeed > 0 AND giPID_H_MV > 0, F_SCALE(griMinVentSpeed, 0, 100, 0, 32000), giPID_H_MV, 32000, AO_VFDVent);
+END_IF;
+DO_VFDHum := ((gxManualMode AND gxVFDVent) OR (NOT gxManualMode)) AND NOT DI_VFDAlarmHumid AND (AO_VFDVent > 0);
 
 
 giCS_NumDisplay := SEL(gxProgress, 0, giCS_Num + 1);
@@ -156,7 +171,7 @@ IF DI_VFDAlarm1 THEN
 	giVFD1State := c_VFD_ST_FAULT;
 ELSIF DO_VFD1 THEN
 	giVFD1State := c_VFD_ST_RUNNING;
-ELSIF gxVFD1 THEN
+ELSIF (gxManualMode AND gxVFD1) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD1State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD1State := c_VFD_ST_NOT_ACTIVE;
@@ -166,7 +181,7 @@ IF DI_VFDAlarm2 THEN
 	giVFD2State := c_VFD_ST_FAULT;
 ELSIF DO_VFD2 THEN
 	giVFD2State := c_VFD_ST_RUNNING;
-ELSIF gxVFD2 THEN
+ELSIF (gxManualMode AND gxVFD2) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD2State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD2State := c_VFD_ST_NOT_ACTIVE;
@@ -176,7 +191,7 @@ IF DI_VFDAlarm3 THEN
 	giVFD3State := c_VFD_ST_FAULT;
 ELSIF DO_VFD3 THEN
 	giVFD3State := c_VFD_ST_RUNNING;
-ELSIF gxVFD3 THEN
+ELSIF (gxManualMode AND gxVFD3) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD3State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD3State := c_VFD_ST_NOT_ACTIVE;
@@ -186,7 +201,7 @@ IF DI_VFDAlarm4 THEN
 	giVFD4State := c_VFD_ST_FAULT;
 ELSIF DO_VFD4 THEN
 	giVFD4State := c_VFD_ST_RUNNING;
-ELSIF gxVFD4 THEN
+ELSIF (gxManualMode AND gxVFD4) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD4State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD4State := c_VFD_ST_NOT_ACTIVE;
@@ -196,7 +211,7 @@ IF DI_VFDAlarm5 THEN
 	giVFD5State := c_VFD_ST_FAULT;
 ELSIF DO_VFD5 THEN
 	giVFD5State := c_VFD_ST_RUNNING;
-ELSIF gxVFD5 THEN
+ELSIF (gxManualMode AND gxVFD5) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD5State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD5State := c_VFD_ST_NOT_ACTIVE;
@@ -206,7 +221,7 @@ IF DI_VFDAlarm6 THEN
 	giVFD6State := c_VFD_ST_FAULT;
 ELSIF DO_VFD6 THEN
 	giVFD6State := c_VFD_ST_RUNNING;
-ELSIF gxVFD6 THEN
+ELSIF (gxManualMode AND gxVFD6) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD6State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD6State := c_VFD_ST_NOT_ACTIVE;
@@ -216,7 +231,7 @@ IF DI_VFDAlarm7 THEN
 	giVFD7State := c_VFD_ST_FAULT;
 ELSIF DO_VFD7 THEN
 	giVFD7State := c_VFD_ST_RUNNING;
-ELSIF gxVFD7 THEN
+ELSIF (gxManualMode AND gxVFD7) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD7State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD7State := c_VFD_ST_NOT_ACTIVE;
@@ -226,7 +241,7 @@ IF DI_VFDAlarm8 THEN
 	giVFD8State := c_VFD_ST_FAULT;
 ELSIF DO_VFD8 THEN
 	giVFD8State := c_VFD_ST_RUNNING;
-ELSIF gxVFD8 THEN
+ELSIF (gxManualMode AND gxVFD8) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD8State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD8State := c_VFD_ST_NOT_ACTIVE;
@@ -236,7 +251,7 @@ IF DI_VFDAlarm9 THEN
 	giVFD9State := c_VFD_ST_FAULT;
 ELSIF DO_VFD9 THEN
 	giVFD9State := c_VFD_ST_RUNNING;
-ELSIF gxVFD9 THEN
+ELSIF (gxManualMode AND gxVFD9) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD9State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD9State := c_VFD_ST_NOT_ACTIVE;
@@ -246,7 +261,7 @@ IF DI_VFDAlarm10 THEN
 	giVFD10State := c_VFD_ST_FAULT;
 ELSIF DO_VFD10 THEN
 	giVFD10State := c_VFD_ST_RUNNING;
-ELSIF gxVFD10 THEN
+ELSIF (gxManualMode AND gxVFD10) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD10State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD10State := c_VFD_ST_NOT_ACTIVE;
@@ -256,7 +271,7 @@ IF DI_VFDAlarm11 THEN
 	giVFD11State := c_VFD_ST_FAULT;
 ELSIF DO_VFD11 THEN
 	giVFD11State := c_VFD_ST_RUNNING;
-ELSIF gxVFD11 THEN
+ELSIF (gxManualMode AND gxVFD11) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD11State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD11State := c_VFD_ST_NOT_ACTIVE;
@@ -266,7 +281,7 @@ IF DI_VFDAlarm12 THEN
 	giVFD12State := c_VFD_ST_FAULT;
 ELSIF DO_VFD12 THEN
 	giVFD12State := c_VFD_ST_RUNNING;
-ELSIF gxVFD12 THEN
+ELSIF (gxManualMode AND gxVFD12) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD12State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD12State := c_VFD_ST_NOT_ACTIVE;
@@ -276,7 +291,7 @@ IF DI_VFDAlarm13 THEN
 	giVFD13State := c_VFD_ST_FAULT;
 ELSIF DO_VFD13 THEN
 	giVFD13State := c_VFD_ST_RUNNING;
-ELSIF gxVFD13 THEN
+ELSIF (gxManualMode AND gxVFD13) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD13State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD13State := c_VFD_ST_NOT_ACTIVE;
@@ -286,17 +301,19 @@ IF DI_VFDAlarm14 THEN
 	giVFD14State := c_VFD_ST_FAULT;
 ELSIF DO_VFD14 THEN
 	giVFD14State := c_VFD_ST_RUNNING;
-ELSIF gxVFD14 THEN
+ELSIF (gxManualMode AND gxVFD14) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFD14State := c_VFD_ST_STOPPED;
 ELSE
 	giVFD14State := c_VFD_ST_NOT_ACTIVE;
 END_IF;
 
-(* ПЧ вентиляции: без отдельного разрешения, состояние 0 не используется *)
+(* ПЧ вентиляции/увлажнения *)
 IF DI_VFDAlarmHumid THEN
 	giVFDVentState := c_VFD_ST_FAULT;
 ELSIF DO_VFDHum THEN
 	giVFDVentState := c_VFD_ST_RUNNING;
-ELSE
+ELSIF (gxManualMode AND gxVFDVent) OR (NOT gxManualMode AND gxProgress) THEN
 	giVFDVentState := c_VFD_ST_STOPPED;
+ELSE
+	giVFDVentState := c_VFD_ST_NOT_ACTIVE;
 END_IF;
