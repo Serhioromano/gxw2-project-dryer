@@ -10,35 +10,20 @@ AI_Temp1 := R23700;
 AI_Temp2 := R23701;
 AI_Temp3 := R23702;
 AI_Temp4 := R23703;
+AI_TempAvg := (AI_Temp1 + AI_Temp2 + AI_Temp3 + AI_Temp4) / 4;
 AI_TempProd1 := R23704;
 AI_TempProd2 := R23705;
 AI_TempProd3 := R23706;
-AI_Pressure := F_SCALE(R23708, 0, 32000, 0, -1000);
-AI_PVTHumid := F_SCALE(R23709, 0, 32000, 50, 950);
+AI_TempProdAvg := (AI_TempProd1 + AI_TempProd2 + AI_TempProd3) / 3;
 AI_PVTTempr := F_SCALE(R23710, 0, 32000, -400, 800);
+AI_PVTHumid := F_SCALE(R23709, 0, 32000, 50, 950);
+AI_Pressure := F_SCALE(R23708, 0, 32000, 0, -1000);
 AI_AirFlow := F_SCALE(R23711, 0, 32000, 0, 1000);
 
 AI_Valve1Position := F_SCALE(D8032, 0, 4090, 0, 100);
 AI_Valve2Position := F_SCALE(D8033, 0, 4090, 0, 100);
 
-fT1 := F_FLT10(AI_Temp1);	
-fT2 := F_FLT10(AI_Temp2);	
-fT3 := F_FLT10(AI_Temp3);	
-fT4 := F_FLT10(AI_Temp4);
-fTAvg := (fT1 + fT2 + fT3 + fT4) / 4.0;
-
-fP1 := F_FLT10(AI_TempProd1);	
-fP2 := F_FLT10(AI_TempProd2);	
-fP3 := F_FLT10(AI_TempProd3);	
-fpAvg := (fP1 + fP2 + fP3) / 3.0;
-
-fPress := F_FLT10(AI_Pressure);	
-fT100 := F_FLT10(AI_PVTTempr);	
-fH100 := F_FLT10(AI_PVTHumid);	
-fFlow := F_FLT10(AI_AirFlow);	
-
 giPID_H_PV := AI_PVTHumid;
-
 
 (* Ручной режим: положение клапанов задаётся с панели (0-100%) *)
 AO_Valve1 := SEL(gxManualMode, giPID_T_MV, F_SCALE(giValve1Pos, 0, 100, 0, 4090));
